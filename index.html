@@ -1,0 +1,2163 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>事例性と疾病性の切り分け ─ 見立ての技術</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+  :root {
+    --jiresei: #0e7c6b;
+    --jiresei-light: #e6f4f1;
+    --jiresei-mid: #1aa38e;
+    --shippei: #3a4faa;
+    --shippei-light: #eceffe;
+    --shippei-mid: #5469d4;
+    --interact: #7b5ea7;
+    --interact-light: #f0eaf8;
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --ink: #1c1c2e;
+    --ink-mid: #4a4a6a;
+    --ink-light: #8888aa;
+    --border: #e2e0da;
+    --warn: #c0392b;
+    --warn-light: #fdf0ef;
+    --gold: #c5972b;
+    --gold-light: #fdf7e8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.8;
+    overflow-x: hidden;
+  }
+
+  /* ─── Progress Bar ─────────────────────────── */
+  #progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    width: 0%;
+    background: linear-gradient(90deg, var(--jiresei), var(--shippei));
+    z-index: 9999;
+    transition: width 0.1s linear;
+  }
+
+  /* ─── Hero ──────────────────────────────────── */
+  .hero {
+    min-height: 100vh;
+    background: var(--ink);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 80px 24px 60px;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(10,124,107,0.18) 0%, transparent 70%);
+    top: -100px; left: -100px;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(58,79,170,0.2) 0%, transparent 70%);
+    bottom: -80px; right: -80px;
+  }
+
+  .hero-tag {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--jiresei-mid);
+    background: rgba(14,124,107,0.15);
+    border: 1px solid rgba(14,124,107,0.3);
+    padding: 6px 18px;
+    border-radius: 100px;
+    margin-bottom: 36px;
+    display: inline-block;
+    text-transform: uppercase;
+  }
+
+  .hero h1 {
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 900;
+    font-size: clamp(32px, 6vw, 58px);
+    color: #fff;
+    line-height: 1.3;
+    margin-bottom: 28px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero h1 span.accent-j { color: var(--jiresei-mid); }
+  .hero h1 span.accent-s { color: #7a8fff; }
+
+  .hero-sub {
+    font-size: clamp(15px, 2.5vw, 18px);
+    color: rgba(255,255,255,0.65);
+    max-width: 620px;
+    line-height: 1.9;
+    margin-bottom: 48px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-question {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-left: 3px solid var(--jiresei-mid);
+    border-radius: 8px;
+    padding: 20px 28px;
+    max-width: 680px;
+    text-align: left;
+    color: rgba(255,255,255,0.85);
+    font-size: 15px;
+    line-height: 2;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 60px;
+  }
+
+  .hero-question .q-label {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--jiresei-mid);
+    font-weight: 700;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .scroll-hint {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255,255,255,0.4);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+  }
+
+  .scroll-hint i { animation: bounce 2s infinite; }
+  @keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(6px); }
+  }
+
+  /* ─── Section Wrapper ───────────────────────── */
+  .section {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 80px 24px;
+  }
+
+  .section-full {
+    padding: 80px 0;
+  }
+
+  .section-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ─── Section Label ─────────────────────────── */
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.2;
+  }
+
+  .label-jiresei { color: var(--jiresei); }
+  .label-shippei { color: var(--shippei); }
+  .label-neutral { color: var(--ink-mid); }
+  .label-warn { color: var(--warn); }
+  .label-gold { color: var(--gold); }
+
+  /* ─── Section Title ─────────────────────────── */
+  .section-title {
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 700;
+    font-size: clamp(24px, 4vw, 36px);
+    line-height: 1.4;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+
+  .section-title .small { font-size: 0.55em; font-weight: 400; color: var(--ink-light); display: block; margin-bottom: 4px; }
+
+  .section-lead {
+    font-size: 16px;
+    color: var(--ink-mid);
+    line-height: 1.9;
+    margin-bottom: 40px;
+    max-width: 700px;
+  }
+
+  /* ─── Divider Band ──────────────────────────── */
+  .band {
+    padding: 56px 0;
+  }
+
+  .band-ink { background: var(--ink); }
+  .band-jiresei { background: var(--jiresei); }
+  .band-shippei { background: var(--shippei); }
+  .band-light { background: #fff; }
+  .band-grey { background: #f0eeea; }
+  .band-warn { background: var(--warn-light); }
+
+  /* ─── Concept Cards ─────────────────────────── */
+  .concept-card {
+    border-radius: 16px;
+    padding: 36px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .concept-card.jiresei-card {
+    background: var(--jiresei-light);
+    border: 2px solid var(--jiresei);
+  }
+
+  .concept-card.shippei-card {
+    background: var(--shippei-light);
+    border: 2px solid var(--shippei);
+  }
+
+  .card-icon-big {
+    width: 56px; height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+  }
+
+  .jiresei-card .card-icon-big { background: var(--jiresei); color: #fff; }
+  .shippei-card .card-icon-big { background: var(--shippei); color: #fff; }
+
+  .card-title {
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 700;
+    font-size: 22px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .jiresei-card .card-title { color: var(--jiresei); }
+  .shippei-card .card-title { color: var(--shippei); }
+
+  .card-reading {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--ink-light);
+    letter-spacing: 0.1em;
+  }
+
+  .card-def {
+    font-size: 15px;
+    color: var(--ink);
+    line-height: 1.85;
+    margin-bottom: 24px;
+    border-left: 3px solid;
+    padding-left: 16px;
+  }
+
+  .jiresei-card .card-def { border-color: var(--jiresei); }
+  .shippei-card .card-def { border-color: var(--shippei); }
+
+  .card-examples {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .ex-chip {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.5;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .jiresei-card .ex-chip { background: rgba(14,124,107,0.1); color: var(--jiresei); }
+  .shippei-card .ex-chip { background: rgba(58,79,170,0.1); color: var(--shippei); }
+
+  .ex-chip i { margin-top: 2px; font-size: 11px; flex-shrink: 0; }
+
+  /* ─── Key Difference ────────────────────────── */
+  .diff-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 32px;
+  }
+
+  @media (max-width: 600px) {
+    .diff-row { grid-template-columns: 1fr; }
+  }
+
+  .diff-cell {
+    border-radius: 12px;
+    padding: 20px;
+    font-size: 14px;
+  }
+
+  .diff-cell.j { background: var(--jiresei-light); border-left: 4px solid var(--jiresei); }
+  .diff-cell.s { background: var(--shippei-light); border-left: 4px solid var(--shippei); }
+
+  .diff-cell .label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 8px; }
+  .diff-cell.j .label { color: var(--jiresei); }
+  .diff-cell.s .label { color: var(--shippei); }
+
+  .diff-item { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 6px; color: var(--ink-mid); }
+  .diff-item i { margin-top: 3px; font-size: 12px; flex-shrink: 0; }
+  .diff-item.j i { color: var(--jiresei); }
+  .diff-item.s i { color: var(--shippei); }
+
+  /* ─── Why Section ───────────────────────────── */
+  .why-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+    margin-top: 32px;
+  }
+
+  .why-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+
+  .why-icon {
+    width: 40px; height: 40px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    margin-bottom: 14px;
+  }
+
+  .why-card h4 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+
+  .why-card p { font-size: 13px; color: var(--ink-mid); line-height: 1.75; }
+
+  /* ─── Confusion diagram ─────────────────────── */
+  .confusion-box {
+    background: var(--warn-light);
+    border: 1.5px solid rgba(192,57,43,0.25);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .confusion-box i.icon { color: var(--warn); font-size: 20px; margin-top: 2px; flex-shrink: 0; }
+  .confusion-box .text { font-size: 14px; color: var(--ink); line-height: 1.8; }
+  .confusion-box .text strong { color: var(--warn); }
+
+  /* ─── Venn / Relation diagram ───────────────── */
+  .venn-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    margin: 40px 0;
+  }
+
+  .venn-svg-area {
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .venn-legend {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--ink-mid);
+  }
+
+  .legend-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .relation-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 24px;
+    font-size: 14px;
+  }
+
+  .relation-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    border-bottom: 2px solid var(--border);
+    color: var(--ink-mid);
+  }
+
+  .relation-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    color: var(--ink);
+    line-height: 1.7;
+  }
+
+  .relation-table tr:last-child td { border-bottom: none; }
+
+  .tag-j {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--jiresei-light);
+    color: var(--jiresei);
+    margin-bottom: 4px;
+  }
+
+  .tag-s {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--shippei-light);
+    color: var(--shippei);
+    margin-bottom: 4px;
+  }
+
+  .tag-both {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--interact-light);
+    color: var(--interact);
+    margin-bottom: 4px;
+  }
+
+  /* ─── Process Steps ─────────────────────────── */
+  .steps-wrapper {
+    position: relative;
+    padding-left: 40px;
+    margin-top: 32px;
+  }
+
+  .steps-line {
+    position: absolute;
+    left: 18px;
+    top: 24px;
+    bottom: 24px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--jiresei), var(--shippei));
+  }
+
+  .step-item {
+    position: relative;
+    margin-bottom: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px 20px 22px;
+    transition: box-shadow 0.2s;
+  }
+
+  .step-item:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+
+  .step-number {
+    position: absolute;
+    left: -40px;
+    top: 18px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    z-index: 1;
+  }
+
+  .step-item:nth-child(1) .step-number { background: var(--jiresei); color: #fff; }
+  .step-item:nth-child(2) .step-number { background: #1a9480; color: #fff; }
+  .step-item:nth-child(3) .step-number { background: var(--interact); color: #fff; }
+  .step-item:nth-child(4) .step-number { background: #5469d4; color: #fff; }
+  .step-item:nth-child(5) .step-number { background: var(--shippei); color: #fff; }
+
+  .step-head {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .step-head .step-tag {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 100px;
+    letter-spacing: 0.08em;
+  }
+
+  .step-body { font-size: 14px; color: var(--ink-mid); line-height: 1.8; }
+
+  .step-example {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: var(--bg);
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.75;
+    border-left: 3px solid var(--border);
+  }
+
+  .step-example .ex-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--ink-light);
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  /* ─── Role Boundary ─────────────────────────── */
+  .role-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 32px;
+  }
+
+  @media (max-width: 600px) { .role-grid { grid-template-columns: 1fr; } }
+
+  .role-card {
+    border-radius: 12px;
+    padding: 24px;
+    border: 1.5px solid;
+  }
+
+  .role-card.can {
+    border-color: var(--jiresei);
+    background: var(--jiresei-light);
+  }
+
+  .role-card.cannot {
+    border-color: #d0d5f0;
+    background: var(--shippei-light);
+  }
+
+  .role-card .role-head {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .role-card.can .role-head { color: var(--jiresei); }
+  .role-card.cannot .role-head { color: var(--shippei); }
+
+  .role-list { list-style: none; }
+  .role-list li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+
+  .role-list li i { font-size: 12px; margin-top: 3px; flex-shrink: 0; }
+  .role-card.can .role-list li i { color: var(--jiresei); }
+  .role-card.cannot .role-list li i { color: var(--shippei); }
+
+  .boundary-note {
+    background: var(--gold-light);
+    border: 1.5px solid rgba(197,151,43,0.3);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-top: 20px;
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.8;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .boundary-note i { color: var(--gold); flex-shrink: 0; margin-top: 2px; }
+
+  /* ─── Traps Accordion ───────────────────────── */
+  .trap-item {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+
+  .trap-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 22px;
+    cursor: pointer;
+    user-select: none;
+    gap: 12px;
+  }
+
+  .trap-header:hover { background: rgba(0,0,0,0.02); }
+
+  .trap-left { display: flex; align-items: flex-start; gap: 14px; }
+
+  .trap-num {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    background: var(--warn-light);
+    color: var(--warn);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .trap-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+
+  .trap-subtitle { font-size: 12px; color: var(--ink-light); margin-top: 2px; }
+
+  .trap-chevron {
+    color: var(--ink-light);
+    transition: transform 0.25s;
+    flex-shrink: 0;
+  }
+
+  .trap-item.open .trap-chevron { transform: rotate(180deg); }
+
+  .trap-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+
+  .trap-body-inner {
+    padding: 0 22px 20px;
+    font-size: 14px;
+    color: var(--ink-mid);
+    line-height: 1.85;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+
+  .trap-before-after {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 14px;
+  }
+
+  @media (max-width: 540px) { .trap-before-after { grid-template-columns: 1fr; } }
+
+  .ba-box {
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  .ba-box .ba-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 6px; display: block; }
+  .ba-box.bad { background: var(--warn-light); }
+  .ba-box.bad .ba-label { color: var(--warn); }
+  .ba-box.good { background: var(--jiresei-light); }
+  .ba-box.good .ba-label { color: var(--jiresei); }
+
+  /* ─── Framework / Checklist ─────────────────── */
+  .framework-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-top: 32px;
+  }
+
+  .fw-header {
+    background: var(--ink);
+    color: #fff;
+    padding: 20px 28px;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .fw-section {
+    padding: 22px 28px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .fw-section:last-child { border-bottom: none; }
+
+  .fw-section-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--border);
+  }
+
+  .fw-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.7;
+  }
+
+  .fw-checkbox {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    color: transparent;
+    transition: all 0.15s;
+    background: #fff;
+    user-select: none;
+  }
+
+  .fw-checkbox.checked {
+    background: var(--jiresei);
+    border-color: var(--jiresei);
+    color: #fff;
+  }
+
+  /* ─── Key Insight ───────────────────────────── */
+  .insight-box {
+    background: var(--ink);
+    border-radius: 16px;
+    padding: 36px;
+    color: #fff;
+    margin: 40px 0;
+  }
+
+  .insight-box .insight-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--jiresei-mid);
+    margin-bottom: 14px;
+    display: block;
+  }
+
+  .insight-box p {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(16px, 2.5vw, 20px);
+    line-height: 1.85;
+    color: rgba(255,255,255,0.9);
+  }
+
+  .insight-box p strong { color: var(--jiresei-mid); }
+
+  /* ─── Case Example ──────────────────────────── */
+  .case-box {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin: 32px 0;
+  }
+
+  .case-header {
+    background: #2e3348;
+    color: rgba(255,255,255,0.9);
+    padding: 14px 22px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .case-header i { color: #aabbff; }
+
+  .case-body { padding: 20px 22px; }
+
+  .case-person {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .person-avatar {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: #dde8ff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    color: var(--shippei);
+    flex-shrink: 0;
+  }
+
+  .person-info h4 { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .person-info p { font-size: 13px; color: var(--ink-mid); line-height: 1.7; }
+
+  .case-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  @media (max-width: 580px) { .case-two-col { grid-template-columns: 1fr; } }
+
+  .case-col { border-radius: 8px; padding: 16px; }
+  .case-col.jiresei-bg { background: var(--jiresei-light); }
+  .case-col.shippei-bg { background: var(--shippei-light); }
+
+  .case-col-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .jiresei-bg .case-col-title { color: var(--jiresei); }
+  .shippei-bg .case-col-title { color: var(--shippei); }
+
+  .case-list { list-style: none; }
+  .case-list li {
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.65;
+    margin-bottom: 8px;
+    padding-left: 14px;
+    position: relative;
+  }
+
+  .case-list li::before { content: '—'; position: absolute; left: 0; color: var(--ink-light); }
+
+  /* ─── Interaction diagram ───────────────────── */
+  .interact-diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    margin-top: 28px;
+  }
+
+  .arrow-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+    row-gap: 16px;
+  }
+
+  .flow-node {
+    border-radius: 10px;
+    padding: 14px 18px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.4;
+    min-width: 110px;
+  }
+
+  .flow-node.j { background: var(--jiresei-light); color: var(--jiresei); border: 1.5px solid var(--jiresei); }
+  .flow-node.s { background: var(--shippei-light); color: var(--shippei); border: 1.5px solid var(--shippei); }
+  .flow-node.m { background: var(--interact-light); color: var(--interact); border: 1.5px solid var(--interact); }
+
+  .flow-arrow {
+    color: var(--ink-light);
+    font-size: 18px;
+    padding: 0 8px;
+    flex-shrink: 0;
+  }
+
+  .interact-note {
+    margin-top: 20px;
+    padding: 14px 18px;
+    background: var(--bg);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--ink-mid);
+    line-height: 1.8;
+  }
+
+  /* ─── Sources ───────────────────────────────── */
+  .sources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+    margin-top: 28px;
+  }
+
+  .source-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    background: var(--surface);
+    text-decoration: none;
+    display: block;
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+
+  .source-card:hover {
+    box-shadow: 0 4px 14px rgba(0,0,0,0.07);
+    border-color: var(--jiresei);
+  }
+
+  .source-type {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--ink-light);
+    margin-bottom: 6px;
+  }
+
+  .source-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.5;
+    margin-bottom: 4px;
+  }
+
+  .source-org { font-size: 12px; color: var(--ink-light); }
+
+  /* ─── Footer ─────────────────────────────────── */
+  footer {
+    text-align: center;
+    padding: 40px 24px;
+    font-size: 12px;
+    color: var(--ink-light);
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  /* ─── Scroll Reveal ─────────────────────────── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+
+  /* ─── Sticky Nav ─────────────────────────────── */
+  .sticky-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(28,28,46,0.97);
+    backdrop-filter: blur(10px);
+    padding: 10px 24px;
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .sticky-nav::-webkit-scrollbar { display: none; }
+
+  .nav-btn {
+    flex-shrink: 0;
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: rgba(255,255,255,0.5);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-btn:hover { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.06); }
+  .nav-btn.active { color: #fff; background: rgba(255,255,255,0.1); }
+
+  /* ─── Horizontal Rule ────────────────────────── */
+  .hr { height: 1px; background: var(--border); margin: 0; }
+
+  /* ─── Highlight ───────────────────────────────── */
+  mark.j { background: rgba(14,124,107,0.12); color: var(--jiresei); border-radius: 3px; padding: 0 3px; }
+  mark.s { background: rgba(58,79,170,0.12); color: var(--shippei); border-radius: 3px; padding: 0 3px; }
+
+  /* ─── Quote ─────────────────────────────────── */
+  blockquote {
+    border-left: 3px solid var(--interact);
+    margin: 20px 0;
+    padding: 14px 20px;
+    background: var(--interact-light);
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.85;
+  }
+
+  blockquote cite { display: block; font-size: 12px; color: var(--ink-light); margin-top: 8px; font-style: normal; }
+
+  /* ─── Responsive tweaks ──────────────────────── */
+  @media (max-width: 640px) {
+    .section { padding: 56px 16px; }
+    .band { padding: 40px 0; }
+    .concept-card { padding: 24px; }
+  }
+
+  .two-col-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 580px) {
+    .two-col-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<!-- ─── HERO ─────────────────────────────────────── -->
+<section class="hero" id="top">
+  <div class="hero-tag">就労移行支援スタッフ向け ─ 見立ての基礎</div>
+  <h1>
+    <span class="accent-j">事例性</span>と<span class="accent-s">疾病性</span>の<br>切り分け
+  </h1>
+  <p class="hero-sub">
+    利用者の困難を「病気の問題」と「支援の問題」に整理することで、<br>
+    支援者は自分の役割を見失わず、より的確な見立てができる。
+  </p>
+  <div class="hero-question">
+    <span class="q-label">スタッフが直面する問い</span>
+    Aさんは週2〜3日の遅刻と早退が続いています。作業中に手が止まることが多く、
+    他の利用者との会話を避けるようになりました。
+    ─ これは精神疾患の悪化ですか？　意欲の問題ですか？　支援で変えられることですか？
+  </div>
+  <div class="scroll-hint">
+    <span>SCROLL</span>
+    <i class="fas fa-chevron-down"></i>
+  </div>
+</section>
+
+<!-- ─── STICKY NAV ─────────────────────────────── -->
+<nav class="sticky-nav">
+  <button class="nav-btn" onclick="scrollToSection('why')">なぜ切り分けるのか</button>
+  <button class="nav-btn" onclick="scrollToSection('jiresei')">事例性とは</button>
+  <button class="nav-btn" onclick="scrollToSection('shippei')">疾病性とは</button>
+  <button class="nav-btn" onclick="scrollToSection('relation')">両者の関係</button>
+  <button class="nav-btn" onclick="scrollToSection('process')">見立てのプロセス</button>
+  <button class="nav-btn" onclick="scrollToSection('role')">スタッフの役割範囲</button>
+  <button class="nav-btn" onclick="scrollToSection('traps')">よくある認識のズレ</button>
+  <button class="nav-btn" onclick="scrollToSection('framework')">実践フレームワーク</button>
+  <button class="nav-btn" onclick="scrollToSection('sources')">情報ソース</button>
+</nav>
+
+<!-- ─── SECTION 1: WHY ────────────────────────── -->
+<div id="why" class="band band-light">
+<div class="section">
+
+  <div class="section-label label-warn"><i class="fas fa-exclamation-circle"></i>問題の構造</div>
+  <h2 class="section-title reveal">
+    <span class="small">Section 1</span>
+    なぜ「切り分け」が必要なのか
+  </h2>
+  <p class="section-lead reveal">
+    支援の現場では「病気だから仕方ない」「本人の意欲の問題」「支援の関わり方が悪い」という3つの解釈が混在しやすい。
+    この混在こそが、支援の空転と役割の混乱を生む。
+  </p>
+
+  <div class="confusion-box reveal">
+    <i class="fas fa-times-circle icon"></i>
+    <div class="text">
+      <strong>よくある混乱①</strong>：遅刻・欠席を「うつ病だから」と説明し、支援上の介入を諦める。<br>
+      → 疾病性から事例性を論理的に導いているが、実際にはその二つは独立した問いである。
+    </div>
+  </div>
+
+  <div class="confusion-box reveal">
+    <i class="fas fa-times-circle icon"></i>
+    <div class="text">
+      <strong>よくある混乱②</strong>：作業の定着が難しい利用者に「もっと頑張れ」と促す。<br>
+      → 疾病性（医療が関与すべき状態）を無視し、事例性の問題として過剰に対応している。
+    </div>
+  </div>
+
+  <div class="confusion-box reveal">
+    <i class="fas fa-times-circle icon"></i>
+    <div class="text">
+      <strong>よくある混乱③</strong>：「主治医に任せるしかない」と静観し、支援者としての関与を手放す。<br>
+      → 疾病性と事例性を混同し、医療に委ねることで支援の責任が曖昧になる。
+    </div>
+  </div>
+
+  <div class="insight-box reveal">
+    <span class="insight-label">CORE INSIGHT</span>
+    <p>
+      <strong>「これは病気の問題か、支援の問題か」という問いは、二択ではない。</strong><br>
+      疾病性と事例性は同時に存在し、互いに影響し合う。
+      切り分けの目的は「どちらかを選ぶ」ことではなく、
+      「それぞれに対して誰が・何を・どのように関与するか」を明確にすることだ。
+    </p>
+  </div>
+
+  <div class="why-grid">
+    <div class="why-card reveal reveal-delay-1">
+      <div class="why-icon" style="background:#e6f4f1; color: var(--jiresei);">
+        <i class="fas fa-bullseye"></i>
+      </div>
+      <h4>支援の焦点が定まる</h4>
+      <p>「支援者として今何ができるか」が明確になり、無力感や過剰介入を防ぐ。</p>
+    </div>
+    <div class="why-card reveal reveal-delay-2">
+      <div class="why-icon" style="background:#eceffe; color: var(--shippei);">
+        <i class="fas fa-user-md"></i>
+      </div>
+      <h4>医療との連携が具体的になる</h4>
+      <p>「どの情報を主治医に伝えるか」が整理でき、連携の質が上がる。</p>
+    </div>
+    <div class="why-card reveal reveal-delay-3">
+      <div class="why-icon" style="background:#f0eaf8; color: var(--interact);">
+        <i class="fas fa-balance-scale"></i>
+      </div>
+      <h4>利用者の主体性を守る</h4>
+      <p>全てを疾患のせいにすることなく、利用者の意思・選択・努力を尊重できる。</p>
+    </div>
+    <div class="why-card reveal reveal-delay-1">
+      <div class="why-icon" style="background:#fdf7e8; color: var(--gold);">
+        <i class="fas fa-file-alt"></i>
+      </div>
+      <h4>記録の質が上がる</h4>
+      <p>観察された事実と推測（診断的解釈）が区別された、信頼性の高い記録が書ける。</p>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ─── SECTION 2: 事例性 ──────────────────────── -->
+<div id="jiresei" class="band band-grey">
+<div class="section">
+
+  <div class="section-label label-jiresei"><i class="fas fa-eye"></i>Observable Layer</div>
+  <h2 class="section-title reveal">
+    <span class="small">Section 2</span>
+    事例性とは何か
+  </h2>
+  <p class="section-lead reveal">
+    支援・職業訓練の場で「実際に起きていること」の総体。
+    観察可能・記録可能・対応可能な問題であり、支援スタッフが直接関与できる領域。
+  </p>
+
+  <div class="concept-card jiresei-card reveal">
+    <div class="card-icon-big"><i class="fas fa-binoculars"></i></div>
+    <div class="card-title">
+      事例性
+      <span class="card-reading">じれいせい</span>
+    </div>
+    <p class="card-def">
+      職場や支援場面において、<strong>観察・記録・対応が可能な形で現れている問題</strong>のこと。
+      診断名や症状の有無に関わらず、「この場で今起きていること」を指す。
+      支援者が直接働きかけ、変化を促すことができる領域。
+    </p>
+
+    <p style="font-size:13px; color: var(--ink-mid); margin-bottom: 8px; font-weight: 700;">具体例</p>
+    <div class="card-examples">
+      <div class="ex-chip"><i class="fas fa-circle"></i>週2〜3回の遅刻・無断欠席</div>
+      <div class="ex-chip"><i class="fas fa-circle"></i>作業中に手が頻繁に止まる</div>
+      <div class="ex-chip"><i class="fas fa-circle"></i>指示に返答せず席を立つ</div>
+      <div class="ex-chip"><i class="fas fa-circle"></i>他の利用者との会話を避ける</div>
+      <div class="ex-chip"><i class="fas fa-circle"></i>提出物の期限を繰り返し守れない</div>
+      <div class="ex-chip"><i class="fas fa-circle"></i>強い感情的反応（涙・怒り）が場面に不釣り合いに生じる</div>
+    </div>
+  </div>
+
+  <div class="diff-row reveal">
+    <div class="diff-cell j">
+      <div class="label">事例性の特徴</div>
+      <div class="diff-item j"><i class="fas fa-check"></i>外部から観察・記録できる</div>
+      <div class="diff-item j"><i class="fas fa-check"></i>支援者が介入の主体になれる</div>
+      <div class="diff-item j"><i class="fas fa-check"></i>診断がなくても扱える</div>
+      <div class="diff-item j"><i class="fas fa-check"></i>「いつ・どこで・どの程度」が記述可能</div>
+      <div class="diff-item j"><i class="fas fa-check"></i>環境・関係・支援方法で変化しうる</div>
+    </div>
+    <div class="diff-cell s" style="border-left-color: #ccc; background: #f8f8fa;">
+      <div class="label" style="color:var(--ink-light);">事例性ではないもの（注意）</div>
+      <div class="diff-item" style="color:var(--ink-mid);"><i class="fas fa-times" style="color:#aaa"></i>「うつ状態のため」という医療的解釈</div>
+      <div class="diff-item" style="color:var(--ink-mid);"><i class="fas fa-times" style="color:#aaa"></i>「意欲がない」という人格的評価</div>
+      <div class="diff-item" style="color:var(--ink-mid);"><i class="fas fa-times" style="color:#aaa"></i>「本当は怠けている」という動機推測</div>
+      <div class="diff-item" style="color:var(--ink-mid);"><i class="fas fa-times" style="color:#aaa"></i>診断名そのものの判断</div>
+    </div>
+  </div>
+
+  <blockquote class="reveal" style="margin-top:28px;">
+    事例性の記述は「主語＋動詞＋場面・頻度・程度」の形が基本。
+    「Aさんは月曜の午前中、作業開始から30分以内に2〜3回席を離れることが週4回中3回観察された」
+    ─ このような具体性が、医療連携と支援計画の両方に機能する。
+    <cite>日本産業精神保健学会における事例性の定義（厚生労働省「こころの耳」用語解説・産業保健分野の実践的フレームワーク）</cite>
+  </blockquote>
+
+</div>
+</div>
+
+<!-- ─── SECTION 3: 疾病性 ──────────────────────── -->
+<div id="shippei" class="band band-light">
+<div class="section">
+
+  <div class="section-label label-shippei"><i class="fas fa-stethoscope"></i>Clinical Layer</div>
+  <h2 class="section-title reveal">
+    <span class="small">Section 3</span>
+    疾病性とは何か
+  </h2>
+  <p class="section-lead reveal">
+    精神・身体疾患の症状・診断・治療に関わる側面。
+    主治医・精神科医・心療内科医が判断・対応する領域であり、
+    支援スタッフが直接判断したり、処置を施すことはできない。
+  </p>
+
+  <div class="concept-card shippei-card reveal">
+    <div class="card-icon-big"><i class="fas fa-notes-medical"></i></div>
+    <div class="card-title">
+      疾病性
+      <span class="card-reading">しっぺいせい</span>
+    </div>
+    <p class="card-def">
+      精神または身体の疾患に由来する症状・状態の総体。
+      診断基準を満たすかどうか、治療が必要かどうか、投薬の調整が必要かどうかなど、
+      <strong>医学的判断を要する領域</strong>。
+      支援者が「疾病性がある」と判断することは越権であり、
+      逆に「疾病性はない」と軽視することも危険。
+    </p>
+
+    <p style="font-size:13px; color: var(--ink-mid); margin-bottom: 8px; font-weight: 700;">疾病性として医療が扱う例</p>
+    <div class="card-examples">
+      <div class="ex-chip"><i class="fas fa-circle"></i>うつ病による抑うつ気分・希死念慮</div>
+      <div class="ex-chip"><i class="fas fa-circle"></i>ADHDの神経学的特性（不注意・多動）</div>
+      <div class="ex-chip"><i class="fas fa-circle"></i>統合失調症の陽性症状（幻聴・妄想）</div>
+      <div class="ex-chip"><i class="fas fa-circle"></i>躁状態（過活動・睡眠不要）</div>
+      <div class="ex-chip"><i class="fas fa-circle"></i>パニック症の発作</div>
+      <div class="ex-chip"><i class="fas fa-circle"></i>薬の副作用による眠気・倦怠感</div>
+    </div>
+  </div>
+
+  <div class="diff-row reveal">
+    <div class="diff-cell s">
+      <div class="label">疾病性の特徴</div>
+      <div class="diff-item s"><i class="fas fa-check"></i>医師による診断・評価が必要</div>
+      <div class="diff-item s"><i class="fas fa-check"></i>薬物療法・精神療法が介入手段</div>
+      <div class="diff-item s"><i class="fas fa-check"></i>病歴・検査・問診をもとに判断</div>
+      <div class="diff-item s"><i class="fas fa-check"></i>支援者には直接見えにくい</div>
+      <div class="diff-item s"><i class="fas fa-check"></i>良化・悪化の経過がある</div>
+    </div>
+    <div class="diff-cell j" style="border-left-color: #ccc; background: #f8f8fa;">
+      <div class="label" style="color:var(--ink-light);">支援スタッフの関与は？</div>
+      <div class="diff-item" style="color:var(--ink-mid);"><i class="fas fa-arrow-right" style="color:var(--jiresei)"></i>疾病性の変化を「事例性」として観察・記録</div>
+      <div class="diff-item" style="color:var(--ink-mid);"><i class="fas fa-arrow-right" style="color:var(--jiresei)"></i>気になる変化を主治医・相談員に伝える</div>
+      <div class="diff-item" style="color:var(--ink-mid);"><i class="fas fa-arrow-right" style="color:var(--jiresei)"></i>受診勧奨・受診同行のサポート</div>
+      <div class="diff-item" style="color:var(--ink-mid);"><i class="fas fa-times" style="color:#aaa"></i>自ら症状を評価・診断することはしない</div>
+    </div>
+  </div>
+
+  <div class="boundary-note reveal" style="margin-top:28px;">
+    <i class="fas fa-exclamation-triangle"></i>
+    <div>
+      <strong>重要な注意点：</strong>
+      就労移行支援スタッフが疾病性を判断しようとすることは、
+      専門的権限の逸脱（越権）であるだけでなく、
+      誤った安心感（「病気じゃないから大丈夫」）や誤った悲観（「重篤だから就労は無理」）につながるリスクがある。
+      疾病性については「観察した事実を報告する役割」に留まることが、利用者の安全を守る。
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ─── SECTION 4: RELATION ───────────────────── -->
+<div id="relation" class="band band-grey">
+<div class="section">
+
+  <div class="section-label label-neutral"><i class="fas fa-project-diagram"></i>Interaction</div>
+  <h2 class="section-title reveal">
+    <span class="small">Section 4</span>
+    事例性と疾病性の関係
+  </h2>
+  <p class="section-lead reveal">
+    この二つは「どちらか一方」ではなく、常に相互に影響し合う。
+    切り分けの目的は「分離」ではなく「整理」─ 両方を同時に視野に入れながら、
+    それぞれの問いに答える主体を明確にすることだ。
+  </p>
+
+  <!-- SVG Venn Diagram -->
+  <div class="reveal" style="max-width:600px; margin: 32px auto;">
+    <svg viewBox="0 0 580 280" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto; display:block;">
+      <defs>
+        <clipPath id="clipJ"><circle cx="200" cy="140" r="115"/></clipPath>
+        <clipPath id="clipS"><circle cx="380" cy="140" r="115"/></clipPath>
+      </defs>
+      <!-- Circles -->
+      <circle cx="200" cy="140" r="115" fill="rgba(14,124,107,0.12)" stroke="#0e7c6b" stroke-width="2"/>
+      <circle cx="380" cy="140" r="115" fill="rgba(58,79,170,0.12)" stroke="#3a4faa" stroke-width="2"/>
+      <!-- Overlap -->
+      <circle cx="380" cy="140" r="115" fill="rgba(123,94,167,0.15)" clip-path="url(#clipJ)"/>
+      <!-- Labels -->
+      <text x="130" y="100" text-anchor="middle" font-family="'Noto Serif JP',serif" font-size="15" font-weight="700" fill="#0e7c6b">事例性</text>
+      <text x="130" y="120" text-anchor="middle" font-family="'Noto Sans JP',sans-serif" font-size="11" fill="#0e7c6b">じれいせい</text>
+
+      <text x="450" y="100" text-anchor="middle" font-family="'Noto Serif JP',serif" font-size="15" font-weight="700" fill="#3a4faa">疾病性</text>
+      <text x="450" y="120" text-anchor="middle" font-family="'Noto Sans JP',sans-serif" font-size="11" fill="#3a4faa">しっぺいせい</text>
+
+      <!-- Left-only items -->
+      <text x="118" y="150" text-anchor="middle" font-family="'Noto Sans JP',sans-serif" font-size="11" fill="#1c1c2e">遅刻・欠席の頻度</text>
+      <text x="118" y="168" text-anchor="middle" font-family="'Noto Sans JP',sans-serif" font-size="11" fill="#1c1c2e">作業への取り組み</text>
+      <text x="118" y="186" text-anchor="middle" font-family="'Noto Sans JP',sans-serif" font-size="11" fill="#1c1c2e">コミュニケーション状況</text>
+      <text x="118" y="204" text-anchor="middle" font-family="'Noto Sans JP',sans-serif" font-size="11" fill="#1c1c2e">環境への適応状況</text>
+
+      <!-- Overlap area label -->
+      <text x="290" y="133" text-anchor="middle" font-family="'Noto Sans JP',sans-serif" font-size="11" font-weight="700" fill="#7b5ea7">相互影響</text>
+      <text x="290" y="152" text-anchor="middle" font-family="'Noto Sans JP',sans-serif" font-size="10" fill="#7b5ea7">症状が行動に現れる</text>
+      <text x="290" y="169" text-anchor="middle" font-family="'Noto Sans JP',sans-serif" font-size="10" fill="#7b5ea7">ストレスが症状を悪化</text>
+      <text x="290" y="186" text-anchor="middle" font-family="'Noto Sans JP',sans-serif" font-size="10" fill="#7b5ea7">服薬状況の影響</text>
+
+      <!-- Right-only items -->
+      <text x="460" y="150" text-anchor="middle" font-family="'Noto Sans JP',sans-serif" font-size="11" fill="#1c1c2e">診断・症状の評価</text>
+      <text x="460" y="168" text-anchor="middle" font-family="'Noto Sans JP',sans-serif" font-size="11" fill="#1c1c2e">投薬・治療の判断</text>
+      <text x="460" y="186" text-anchor="middle" font-family="'Noto Sans JP',sans-serif" font-size="11" fill="#1c1c2e">回復・悪化の予測</text>
+      <text x="460" y="204" text-anchor="middle" font-family="'Noto Sans JP',sans-serif" font-size="11" fill="#1c1c2e">入院・通院の必要性</text>
+
+      <!-- Bottom role labels -->
+      <rect x="40" y="240" width="130" height="26" rx="5" fill="#e6f4f1"/>
+      <text x="105" y="257" text-anchor="middle" font-family="'Noto Sans JP',sans-serif" font-size="11" font-weight="700" fill="#0e7c6b">支援スタッフの主領域</text>
+      <rect x="410" y="240" width="130" height="26" rx="5" fill="#eceffe"/>
+      <text x="475" y="257" text-anchor="middle" font-family="'Noto Sans JP',sans-serif" font-size="11" font-weight="700" fill="#3a4faa">医療専門家の主領域</text>
+    </svg>
+  </div>
+
+  <!-- Relation table -->
+  <div style="overflow-x:auto; margin-top:8px;">
+  <table class="relation-table reveal">
+    <thead>
+      <tr>
+        <th>パターン</th>
+        <th>状況</th>
+        <th>支援上の意味</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="tag-j">事例性あり</span><br><span style="font-size:12px; color:var(--ink-light);">疾病性なし/低</span></td>
+        <td>遅刻が続いているが、主治医は安定していると言っている</td>
+        <td>環境・習慣・動機づけへの支援が中心。医療への緊急連携は不要。</td>
+      </tr>
+      <tr>
+        <td><span class="tag-s">疾病性あり</span><br><span style="font-size:12px; color:var(--ink-light);">事例性なし/低</span></td>
+        <td>診断はあるが、訓練場面では大きな問題が生じていない</td>
+        <td>現状の支援継続。状態変化に敏感に。「安定している」は「問題なし」ではない。</td>
+      </tr>
+      <tr>
+        <td><span class="tag-both">両方あり</span></td>
+        <td>うつ病が悪化し、欠席と作業停止が増えている</td>
+        <td>医療連携（疾病性）と職場環境調整（事例性）を並行して進める必要あり。</td>
+      </tr>
+      <tr>
+        <td><span style="display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:4px; background:#f0f0f0; color:var(--ink-mid); margin-bottom:4px;">どちらか不明</span></td>
+        <td>突然の行動変化。原因・背景が見えない</td>
+        <td>まず事例性を丁寧に記録し、医療専門家と共有。判断を急がない。</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <!-- 架空事例 -->
+  <div class="case-box reveal" style="margin-top:36px;">
+    <div class="case-header">
+      <i class="fas fa-user-circle"></i>
+      <span>架空事例：Aさんの場合（冒頭の問いに戻る）</span>
+    </div>
+    <div class="case-body">
+      <div class="case-person">
+        <div class="person-avatar"><i class="fas fa-user"></i></div>
+        <div class="person-info">
+          <h4>Aさん、30代、統合失調症の診断あり、就労移行支援を利用中</h4>
+          <p>週2〜3回の遅刻・早退。作業中に手が止まる。他の利用者との会話を避けるようになった。</p>
+        </div>
+      </div>
+      <div class="case-two-col">
+        <div class="case-col jiresei-bg">
+          <div class="case-col-title"><i class="fas fa-eye"></i>事例性として記録できること</div>
+          <ul class="case-list">
+            <li>先月と比較し、遅刻が週1→週2〜3回に増加</li>
+            <li>午前中、10時〜11時台に作業が5分以上中断する場面が複数回</li>
+            <li>昼休みに単独で過ごすことが増加（以前は複数名で話していた）</li>
+            <li>声かけへの返答が短く、目が合いにくい</li>
+          </ul>
+        </div>
+        <div class="case-col shippei-bg">
+          <div class="case-col-title"><i class="fas fa-stethoscope"></i>疾病性として医療が判断すること</div>
+          <ul class="case-list">
+            <li>症状の悪化・再発の可能性（主治医が評価）</li>
+            <li>現在の投薬が適切か（主治医が調整）</li>
+            <li>陰性症状の増悪か、別の要因か（精神科的診断）</li>
+            <li>入院・外来増回が必要かどうか（医療的判断）</li>
+          </ul>
+        </div>
+      </div>
+      <div style="margin-top:16px; padding:14px; background:var(--bg); border-radius:8px; font-size:13px; color:var(--ink-mid); line-height:1.8;">
+        <strong style="color:var(--ink);">スタッフの動き：</strong>
+        観察した事実（事例性）を記録し、変化のパターンを整理。「先月から変化が見られる」という情報を相談員・支援担当を通じて主治医に共有する。
+        「病気が悪化した」と判断して介入を止めるのでも、「怠けている」と叱咤するのでも、どちらでもない。
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ─── SECTION 5: PROCESS ─────────────────────── -->
+<div id="process" class="band band-light">
+<div class="section">
+
+  <div class="section-label label-neutral"><i class="fas fa-route"></i>Process</div>
+  <h2 class="section-title reveal">
+    <span class="small">Section 5</span>
+    見立てのプロセス
+  </h2>
+  <p class="section-lead reveal">
+    見立て（formulation）は、診断を下すことではない。
+    「この人に今何が起きているのか」を複数の視点から整理し、
+    支援の仮説と方針を形成するプロセスだ。
+  </p>
+
+  <div class="steps-wrapper">
+    <div class="steps-line"></div>
+
+    <div class="step-item reveal">
+      <div class="step-number">1</div>
+      <div class="step-head">
+        観察と記録
+        <span class="step-tag" style="background:var(--jiresei-light); color:var(--jiresei);">事例性の素材収集</span>
+      </div>
+      <div class="step-body">
+        「いつ・どこで・誰が・何を・どの程度」の形で具体的な行動・状態を記録する。
+        解釈や推測を交えず、観察された事実を記述することが最初のステップ。
+      </div>
+      <div class="step-example">
+        <span class="ex-label">GOOD EXAMPLE</span>
+        「Aさんは本日10:15〜10:45の作業時間中、5回以上席を離れ、各2〜5分程度作業から離れた。声かけには短く返答したが、作業の再開に至らなかった。」
+      </div>
+      <div class="step-example" style="border-left-color:var(--warn); background:var(--warn-light); margin-top:8px;">
+        <span class="ex-label" style="color:var(--warn);">AVOID</span>
+        「うつ症状が強く、意欲が低下している様子だった。」← 診断的解釈が混入している
+      </div>
+    </div>
+
+    <div class="step-item reveal">
+      <div class="step-number">2</div>
+      <div class="step-head">
+        事例性の整理
+        <span class="step-tag" style="background:var(--jiresei-light); color:var(--jiresei);">パターン化と分類</span>
+      </div>
+      <div class="step-body">
+        観察された事実をグループ化し、「いつ起きやすいか」「どんな場面で頻発するか」「前後に何があるか」を整理する。
+        問題の輪郭を浮かび上がらせる作業。
+      </div>
+      <div class="step-example">
+        <span class="ex-label">整理の観点</span>
+        ①頻度・強度の変化（増えている？減っている？）<br>
+        ②場面・文脈との関連（特定の作業？特定の時間帯？）<br>
+        ③対人関係との関連（誰かとのやり取りの後に生じる？）<br>
+        ④環境要因との関連（騒音・休憩の有無・課題の難易度）
+      </div>
+    </div>
+
+    <div class="step-item reveal">
+      <div class="step-number">3</div>
+      <div class="step-head">
+        疾病性の評価（医療連携）
+        <span class="step-tag" style="background:var(--interact-light); color:var(--interact);">医療との接点</span>
+      </div>
+      <div class="step-body">
+        整理した観察情報を、主治医・相談員・精神保健福祉士などの医療・専門職と共有する。
+        スタッフは疾病性を判断するのではなく、<strong>「こういうことが観察された」という事実を提供する役割</strong>。
+        医療側は、提供された情報をもとに疾病性の評価を行う。
+      </div>
+      <div class="step-example">
+        <span class="ex-label">連携で伝えること</span>
+        「先月と比較してXという変化が見られています。ご本人の様子を確認いただけますか？」<br>
+        ─ 診断推測を含めず、具体的な変化の情報を伝える。
+      </div>
+    </div>
+
+    <div class="step-item reveal">
+      <div class="step-number">4</div>
+      <div class="step-head">
+        仮説の形成
+        <span class="step-tag" style="background:var(--shippei-light); color:var(--shippei);">支援方針の根拠</span>
+      </div>
+      <div class="step-body">
+        事例性の整理と疾病性の評価（医療からのフィードバック）をもとに、
+        「なぜこの状態が生じているか」について複数の仮説を立てる。
+        ひとつの解釈に収束させず、複数の可能性を並置することが重要。
+      </div>
+      <div class="step-example">
+        <span class="ex-label">仮説の例</span>
+        「①投薬の副作用（眠気）が午前中の集中を妨げている可能性<br>
+         ②課題の難易度が高すぎて負荷が増大している可能性<br>
+         ③対人緊張が特定の場面で生じている可能性」
+      </div>
+    </div>
+
+    <div class="step-item reveal">
+      <div class="step-number">5</div>
+      <div class="step-head">
+        支援計画の立案と検証
+        <span class="step-tag" style="background:var(--shippei-light); color:var(--shippei);">実践と振り返り</span>
+      </div>
+      <div class="step-body">
+        仮説に基づいた具体的な支援策を立案し、実施後に「事例性がどう変化したか」を観察して仮説を更新する。
+        見立ては一度きりではなく、観察・評価・修正のサイクルを繰り返す動的なプロセス。
+      </div>
+      <div class="step-example">
+        <span class="ex-label">例</span>
+        「午前中の作業を短い単位に分割し、休憩を組み込むことで集中できる時間が増えるか、2週間観察する。」
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</div>
+
+<!-- ─── SECTION 6: ROLE ────────────────────────── -->
+<div id="role" class="band band-grey">
+<div class="section">
+
+  <div class="section-label label-jiresei"><i class="fas fa-sitemap"></i>Role Boundary</div>
+  <h2 class="section-title reveal">
+    <span class="small">Section 6</span>
+    支援スタッフの役割範囲
+  </h2>
+  <p class="section-lead reveal">
+    「何をしてよいか」の境界を知ることは、
+    利用者を守ると同時に、スタッフ自身が燃え尽きないためにも不可欠。
+    役割範囲の明確化は「逃げ」ではなく「専門性の実践」だ。
+  </p>
+
+  <div class="role-grid">
+    <div class="role-card can reveal">
+      <div class="role-head">
+        <i class="fas fa-check-circle"></i>
+        スタッフが担う役割
+      </div>
+      <ul class="role-list">
+        <li><i class="fas fa-circle"></i>訓練場面での行動・状態の具体的な観察と記録</li>
+        <li><i class="fas fa-circle"></i>事例性の整理と共有（チーム内・医療連携）</li>
+        <li><i class="fas fa-circle"></i>環境調整（課題難易度・座席・休憩タイミング）</li>
+        <li><i class="fas fa-circle"></i>利用者との対話・関係形成</li>
+        <li><i class="fas fa-circle"></i>変化のサインを早期にキャッチして報告</li>
+        <li><i class="fas fa-circle"></i>受診勧奨・受診同行のサポート</li>
+        <li><i class="fas fa-circle"></i>利用者の強みとニーズを把握し支援計画に反映</li>
+      </ul>
+    </div>
+    <div class="role-card cannot reveal">
+      <div class="role-head">
+        <i class="fas fa-hand-paper"></i>
+        スタッフが担うべきでない役割
+      </div>
+      <ul class="role-list">
+        <li><i class="fas fa-minus-circle"></i>診断名の判断・断定（「これはうつ病だ」）</li>
+        <li><i class="fas fa-minus-circle"></i>症状の自己評価・医学的解釈の独断的提供</li>
+        <li><i class="fas fa-minus-circle"></i>投薬変更・服薬指導</li>
+        <li><i class="fas fa-minus-circle"></i>「病気かどうか」の判定</li>
+        <li><i class="fas fa-minus-circle"></i>「回復するかどうか」の予後予測</li>
+        <li><i class="fas fa-minus-circle"></i>精神科的危機の独断的な対応（自傷・希死念慮）</li>
+        <li><i class="fas fa-minus-circle"></i>利用者の疾患情報の無断共有</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="boundary-note reveal">
+    <i class="fas fa-lightbulb"></i>
+    <div>
+      <strong>役割の「間」にある場面：</strong>
+      利用者が「死にたい」と口にした場合、スタッフは精神科的評価（疾病性）はできないが、
+      <mark class="j">今の安全を確認する</mark>・<mark class="j">緊急連絡先に即座につなぐ</mark>・<mark class="j">その場を離れない</mark>
+      という事例性への対応は明確に行う必要がある。
+      危機場面では「疾病性だから医療へ」という先延ばしではなく、
+      安全確保と速やかな連携を同時に行う。
+    </div>
+  </div>
+
+  <!-- Interaction flow diagram -->
+  <div class="interact-diagram reveal">
+    <p style="font-size:12px; font-weight:700; letter-spacing:0.12em; color:var(--ink-light); margin-bottom:16px;">連携のフロー</p>
+    <div class="arrow-flow">
+      <div class="flow-node j">スタッフ<br><span style="font-size:11px; font-weight:400;">事例性の観察・記録</span></div>
+      <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+      <div class="flow-node m">チーム会議<br><span style="font-size:11px; font-weight:400;">情報共有・方針検討</span></div>
+      <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+      <div class="flow-node s">医療専門家<br><span style="font-size:11px; font-weight:400;">疾病性の評価・治療</span></div>
+    </div>
+    <div class="interact-note">
+      <i class="fas fa-sync-alt" style="color:var(--interact); margin-right:6px;"></i>
+      医療からのフィードバック（「今は安定している」「薬を変えた」「外来を増やした」）が
+      スタッフの支援計画に反映され、再び事例性の変化を観察するサイクルが回る。
+      このサイクルが連携の実質。
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ─── SECTION 7: TRAPS ───────────────────────── -->
+<div id="traps" class="band band-light">
+<div class="section">
+
+  <div class="section-label label-warn"><i class="fas fa-exclamation-triangle"></i>Critical Pitfalls</div>
+  <h2 class="section-title reveal">
+    <span class="small">Section 7</span>
+    よくある認識のズレ
+  </h2>
+  <p class="section-lead reveal">
+    切り分けの概念を学んでも、実践の場では認識のズレが生じやすい。
+    以下は現場でよく見られるパターンを批判的に整理したものだ。
+  </p>
+
+  <div id="traps-list">
+
+    <div class="trap-item reveal" onclick="toggleTrap(this)">
+      <div class="trap-header">
+        <div class="trap-left">
+          <div class="trap-num">1</div>
+          <div>
+            <div class="trap-title">診断名で事例性を説明する</div>
+            <div class="trap-subtitle">「ADHDだから整理できない」「うつだから動けない」</div>
+          </div>
+        </div>
+        <i class="fas fa-chevron-down trap-chevron"></i>
+      </div>
+      <div class="trap-body">
+        <div class="trap-body-inner">
+          診断名は「なぜそうなりやすいか」の背景を示す情報にはなりうるが、
+          「だから支援できない・変化しない」という結論を正当化するものではない。
+          診断名による説明は、時として支援可能な事例性への介入を諦める口実になりうる。
+          <div class="trap-before-after">
+            <div class="ba-box bad"><span class="ba-label">問題のある思考</span>ADHDだから提出物が遅れるのは仕方ない。</div>
+            <div class="ba-box good"><span class="ba-label">事例性ベースの思考</span>提出物が遅れる。どの工程で止まっているか観察し、環境調整やリマインドの仕組みを試す。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-item reveal" onclick="toggleTrap(this)">
+      <div class="trap-header">
+        <div class="trap-left">
+          <div class="trap-num">2</div>
+          <div>
+            <div class="trap-title">「医療の問題」として関与を手放す</div>
+            <div class="trap-subtitle">「主治医に言ってください」で終わる</div>
+          </div>
+        </div>
+        <i class="fas fa-chevron-down trap-chevron"></i>
+      </div>
+      <div class="trap-body">
+        <div class="trap-body-inner">
+          疾病性が関与していると思われる状態変化に対し、「これは医療の問題」と全て丸投げしてしまうパターン。
+          疾病性の評価は医療が行うが、<strong>その変化を日常の場で観察・記録し伝えるのはスタッフの役割</strong>。
+          医療だけが利用者の全体像を把握しているわけではない。
+          <div class="trap-before-after">
+            <div class="ba-box bad"><span class="ba-label">問題のある対応</span>「それは主治医に相談してください」と言って観察をやめる。</div>
+            <div class="ba-box good"><span class="ba-label">適切な対応</span>日常場面の変化を記録し、相談員や支援担当を通じて医療に情報提供する。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-item reveal" onclick="toggleTrap(this)">
+      <div class="trap-header">
+        <div class="trap-left">
+          <div class="trap-num">3</div>
+          <div>
+            <div class="trap-title">疾病性の安定を「問題なし」と誤読する</div>
+            <div class="trap-subtitle">「主治医に安定と言われたから大丈夫」</div>
+          </div>
+        </div>
+        <i class="fas fa-chevron-down trap-chevron"></i>
+      </div>
+      <div class="trap-body">
+        <div class="trap-body-inner">
+          疾病性が安定していても、事例性の問題（遅刻・対人トラブル・作業困難）は残ることがある。
+          これは「サボっている」でも「病気のふり」でもなく、
+          疾病性と事例性が独立した問いであることを示す典型例。
+          医療的安定は支援終了の理由にならない。
+          <div class="trap-before-after">
+            <div class="ba-box bad"><span class="ba-label">誤った前提</span>症状が安定しているなら、就労に向けた課題もなくなるはず。</div>
+            <div class="ba-box good"><span class="ba-label">正しい理解</span>症状が安定していても、社会的スキル・ルーティン形成・環境適応への支援は引き続き必要。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-item reveal" onclick="toggleTrap(this)">
+      <div class="trap-header">
+        <div class="trap-left">
+          <div class="trap-num">4</div>
+          <div>
+            <div class="trap-title">事例性を意欲・性格の問題にすり替える</div>
+            <div class="trap-subtitle">「やる気がない」「性格が甘い」</div>
+          </div>
+        </div>
+        <i class="fas fa-chevron-down trap-chevron"></i>
+      </div>
+      <div class="trap-body">
+        <div class="trap-body-inner">
+          観察された行動を「意欲の問題」「性格の問題」に帰属させることは、
+          事例性の記述から最も遠い思考パターンのひとつ。
+          性格・意欲は観察不可能で支援介入しにくく、記録としても機能しない。
+          行動を具体的に記述し、何が変われば変化するかを考えることが支援の出発点。
+          <div class="trap-before-after">
+            <div class="ba-box bad"><span class="ba-label">記録として機能しない</span>「本人にやる気がなく、消極的な姿勢が続いている。」</div>
+            <div class="ba-box good"><span class="ba-label">支援に機能する記録</span>「課題の開始を促すと5〜10秒後に着手するが、15分以内に手が止まることが多い。」</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-item reveal" onclick="toggleTrap(this)">
+      <div class="trap-header">
+        <div class="trap-left">
+          <div class="trap-num">5</div>
+          <div>
+            <div class="trap-title">切り分けが「責任回避」に使われる</div>
+            <div class="trap-subtitle">「それは医療の問題、それは本人の問題」</div>
+          </div>
+        </div>
+        <i class="fas fa-chevron-down trap-chevron"></i>
+      </div>
+      <div class="trap-body">
+        <div class="trap-body-inner">
+          事例性・疾病性の切り分けは、支援者が何もしない理由を見つけるためではない。
+          「これは疾病性だから関知しない」という態度は、連携の放棄であり支援の失敗。
+          <strong>切り分けの目的は「誰が何をするか」を整理することであって、
+          「自分には関係ない」を正当化することではない。</strong>
+          支援スタッフの役割は「ゲートウェイ」─ 観察し、記録し、つなぐこと。
+          <div class="trap-before-after">
+            <div class="ba-box bad"><span class="ba-label">責任の回避</span>「それは医療の問題なので、主治医との関係で解決してください。」</div>
+            <div class="ba-box good"><span class="ba-label">接続の実践</span>「こういう変化が見られます。私たちでできることは何か、医療との連携で何をすべきか一緒に考えましょう。」</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</div>
+
+<!-- ─── SECTION 8: FRAMEWORK ──────────────────── -->
+<div id="framework" class="band band-grey">
+<div class="section">
+
+  <div class="section-label label-gold"><i class="fas fa-tools"></i>Practical Tool</div>
+  <h2 class="section-title reveal">
+    <span class="small">Section 8</span>
+    実践フレームワーク
+  </h2>
+  <p class="section-lead reveal">
+    日常の支援場面で使えるチェックリストと整理の視点。
+    チェックボックスは確認済みにマークできます。
+  </p>
+
+  <div class="framework-box reveal">
+    <div class="fw-header">
+      <i class="fas fa-clipboard-check" style="margin-right:10px;"></i>
+      見立てのためのチェックリスト
+    </div>
+
+    <div class="fw-section">
+      <div class="fw-section-title" style="color:var(--jiresei);">
+        <i class="fas fa-eye"></i> ステップ1：事例性の観察（記録の素材を集める）
+      </div>
+      <div class="fw-item">
+        <div class="fw-checkbox" onclick="toggleCheck(this)"><i class="fas fa-check"></i></div>
+        <div>今日・今週の「具体的な行動の変化」を記録した（頻度・場面・程度を含む）</div>
+      </div>
+      <div class="fw-item">
+        <div class="fw-checkbox" onclick="toggleCheck(this)"><i class="fas fa-check"></i></div>
+        <div>「いつ起きやすいか」「何の前後に起きるか」のパターンを確認した</div>
+      </div>
+      <div class="fw-item">
+        <div class="fw-checkbox" onclick="toggleCheck(this)"><i class="fas fa-check"></i></div>
+        <div>記録に解釈・診断的推測を混入させていないか確認した</div>
+      </div>
+      <div class="fw-item">
+        <div class="fw-checkbox" onclick="toggleCheck(this)"><i class="fas fa-check"></i></div>
+        <div>先月・先週との比較で「変化」があるかを確認した</div>
+      </div>
+    </div>
+
+    <div class="fw-section">
+      <div class="fw-section-title" style="color:var(--interact);">
+        <i class="fas fa-project-diagram"></i> ステップ2：整理と仮説形成
+      </div>
+      <div class="fw-item">
+        <div class="fw-checkbox" onclick="toggleCheck(this)"><i class="fas fa-check"></i></div>
+        <div>事例性として整理できた問題を列挙した（行動・状態・頻度）</div>
+      </div>
+      <div class="fw-item">
+        <div class="fw-checkbox" onclick="toggleCheck(this)"><i class="fas fa-check"></i></div>
+        <div>疾病性に関わる可能性があると思われる変化を医療連携候補として整理した</div>
+      </div>
+      <div class="fw-item">
+        <div class="fw-checkbox" onclick="toggleCheck(this)"><i class="fas fa-check"></i></div>
+        <div>複数の仮説（環境要因、疾病性の変化、対人ストレス等）を並置した</div>
+      </div>
+      <div class="fw-item">
+        <div class="fw-checkbox" onclick="toggleCheck(this)"><i class="fas fa-check"></i></div>
+        <div>単一の解釈に早まって収束させていないか確認した</div>
+      </div>
+    </div>
+
+    <div class="fw-section">
+      <div class="fw-section-title" style="color:var(--shippei);">
+        <i class="fas fa-handshake"></i> ステップ3：連携と方針立案
+      </div>
+      <div class="fw-item">
+        <div class="fw-checkbox" onclick="toggleCheck(this)"><i class="fas fa-check"></i></div>
+        <div>疾病性が関係する可能性を、主治医・相談員・支援担当に観察事実として伝えた</div>
+      </div>
+      <div class="fw-item">
+        <div class="fw-checkbox" onclick="toggleCheck(this)"><i class="fas fa-check"></i></div>
+        <div>事例性への支援策（環境調整・声かけ方法・課題設定）を具体的に決めた</div>
+      </div>
+      <div class="fw-item">
+        <div class="fw-checkbox" onclick="toggleCheck(this)"><i class="fas fa-check"></i></div>
+        <div>支援策の効果を観察する期間と評価の視点を設定した</div>
+      </div>
+      <div class="fw-item">
+        <div class="fw-checkbox" onclick="toggleCheck(this)"><i class="fas fa-check"></i></div>
+        <div>利用者本人に状況を共有し、意向を確認した（本人の主体性の確保）</div>
+      </div>
+    </div>
+
+    <div class="fw-section">
+      <div class="fw-section-title" style="color:var(--warn);">
+        <i class="fas fa-exclamation-triangle"></i> 緊急性の確認（随時）
+      </div>
+      <div class="fw-item">
+        <div class="fw-checkbox" onclick="toggleCheck(this)"><i class="fas fa-check"></i></div>
+        <div>自傷・他害・希死念慮に関わる発言・行動がないか確認した</div>
+      </div>
+      <div class="fw-item">
+        <div class="fw-checkbox" onclick="toggleCheck(this)"><i class="fas fa-check"></i></div>
+        <div>急激な状態変化（睡眠・食事・行動量の大幅な変化）がないか確認した</div>
+      </div>
+      <div class="fw-item">
+        <div class="fw-checkbox" onclick="toggleCheck(this)"><i class="fas fa-check"></i></div>
+        <div>緊急性がある場合、一人で抱えず即座に上長・相談員に報告した</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 記録テンプレート -->
+  <div style="margin-top:40px;">
+    <h3 style="font-family:'Noto Serif JP',serif; font-size:18px; font-weight:700; color:var(--ink); margin-bottom:12px;" class="reveal">
+      記録の視点テンプレート
+    </h3>
+    <div class="framework-box reveal" style="overflow:auto;">
+      <div class="fw-header" style="font-size:14px; font-weight:500; background:#2a3250;">
+        「事例性・疾病性の切り分け」を意識した記録の形式
+      </div>
+      <div class="fw-section" style="font-family:'Noto Sans JP', monospace; font-size:13px; line-height:2; color:var(--ink);">
+        <div style="margin-bottom:10px;"><strong style="color:var(--jiresei);">【観察された事実（事例性）】</strong><br>
+        　日時・場面：＿＿＿＿＿<br>
+        　観察内容：（主語＋動詞＋場面・頻度・程度）<br>
+        　前後の文脈：（何の前後に起きたか）<br>
+        　先週・先月との比較：（増えた・減った・変化なし）</div>
+
+        <div style="margin-bottom:10px;"><strong style="color:var(--interact);">【疾病性として医療連携が必要と思われる点】</strong><br>
+        　□ 状態変化のサイン（睡眠・食欲・発言内容の変化）<br>
+        　□ 緊急性の有無<br>
+        　□ 連絡先・連絡日</div>
+
+        <div><strong style="color:var(--shippei);">【支援上の仮説と対応方針】</strong><br>
+        　仮説①：環境要因の可能性（　　　）<br>
+        　仮説②：疾病性の影響の可能性（　　）<br>
+        　対応：（スタッフとして何をするか）<br>
+        　観察期間：＿＿週後に評価</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ─── SECTION 9: SOURCES ────────────────────── -->
+<div id="sources" class="band band-light">
+<div class="section">
+
+  <div class="section-label label-neutral"><i class="fas fa-book-open"></i>References</div>
+  <h2 class="section-title reveal">
+    <span class="small">Section 9</span>
+    情報ソース・参考資料
+  </h2>
+  <p class="section-lead reveal">
+    この図解の根拠となる一次資料・参考文献です。
+    各リンクから原資料にアクセスできます。
+  </p>
+
+  <div class="sources-grid">
+
+    <a class="source-card reveal" href="https://www.mhlw.go.jp/content/001162730.pdf" target="_blank" rel="noopener">
+      <div class="source-type">厚生労働省 ガイドライン</div>
+      <div class="source-title">職場における心の健康づくり〜労働者の心の健康の保持増進のための指針〜</div>
+      <div class="source-org">厚生労働省</div>
+    </a>
+
+    <a class="source-card reveal" href="https://www.johas.go.jp/sangyohoken/tabid/1130/Default.aspx" target="_blank" rel="noopener">
+      <div class="source-type">独立行政法人 研究・実践資料</div>
+      <div class="source-title">事業場における治療と仕事の両立支援のためのガイドライン</div>
+      <div class="source-org">労働者健康安全機構（JOHAS）</div>
+    </a>
+
+    <a class="source-card reveal" href="https://www.jniosh.johas.go.jp/publication/doc/houkoku/houkoku-2018-wr1.pdf" target="_blank" rel="noopener">
+      <div class="source-type">研究報告書</div>
+      <div class="source-title">メンタルヘルス対策における職場復帰支援に関する研究</div>
+      <div class="source-org">労働安全衛生総合研究所</div>
+    </a>
+
+    <a class="source-card reveal" href="https://www.jeed.go.jp/disability/employer/em06_03.html" target="_blank" rel="noopener">
+      <div class="source-type">就労支援 実践資料</div>
+      <div class="source-title">精神障害者雇用管理ガイドブック</div>
+      <div class="source-org">高齢・障害・求職者雇用支援機構（JEED）</div>
+    </a>
+
+    <a class="source-card reveal" href="https://www.jeed.go.jp/disability/data/handbook/index.html" target="_blank" rel="noopener">
+      <div class="source-type">支援者向けハンドブック</div>
+      <div class="source-title">就業支援ハンドブック（障害者職業総合センター）</div>
+      <div class="source-org">高齢・障害・求職者雇用支援機構（JEED）</div>
+    </a>
+
+    <a class="source-card reveal" href="https://www.rehab.go.jp/data/research/research_data.html" target="_blank" rel="noopener">
+      <div class="source-type">国立リハビリテーション研究</div>
+      <div class="source-title">職業リハビリテーション・就労支援に関する調査研究資料</div>
+      <div class="source-org">国立障害者リハビリテーションセンター</div>
+    </a>
+
+    <a class="source-card reveal" href="https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/hukushi_kaigo/shougaishahukushi/syurou/index.html" target="_blank" rel="noopener">
+      <div class="source-type">就労移行支援 制度資料</div>
+      <div class="source-title">就労系障害福祉サービスに関する報告（就労移行支援）</div>
+      <div class="source-org">厚生労働省</div>
+    </a>
+
+    <a class="source-card reveal" href="https://www.jspn.or.jp/modules/advocacy/index.php?content_id=53" target="_blank" rel="noopener">
+      <div class="source-type">精神医学 ガイドライン</div>
+      <div class="source-title">精神科医療における精神保健福祉士の役割と連携</div>
+      <div class="source-org">日本精神神経学会</div>
+    </a>
+
+  </div>
+
+  <div style="margin-top:36px; padding:20px 24px; background:var(--bg); border-radius:10px; font-size:13px; color:var(--ink-mid); line-height:1.85;" class="reveal">
+    <strong style="color:var(--ink);">補足：</strong>
+    「事例性」「疾病性」の切り分けという概念は、日本の産業精神保健の領域で発展した実践的フレームワークです。
+    海外のoccupational mental healthにおける「work performance問題とclinical assessment」の区別に対応する概念として整理されていますが、
+    就労移行支援への適用は実践の積み重ねによるものが大きく、RCTなど高いエビデンスレベルの研究は限定的です。
+    このフレームワークはあくまで「支援者の思考の整理ツール」であり、それ自体が治療的介入の根拠となるわけではありません。
+  </div>
+
+</div>
+</div>
+
+<!-- ─── FOOTER ──────────────────────────────────── -->
+<footer>
+  <p>岡村雄一郎</p>
+</footer>
+
+<script>
+  try {
+    // Progress bar
+    window.addEventListener('scroll', function() {
+      try {
+        var bar = document.getElementById('progress-bar');
+        if (!bar) return;
+        var scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+        bar.style.width = (isNaN(scrolled) ? 0 : scrolled) + '%';
+      } catch(e) {}
+    });
+
+    // Scroll reveal (with IntersectionObserver guard)
+    if (typeof IntersectionObserver !== 'undefined') {
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.08 });
+      document.querySelectorAll('.reveal').forEach(function(el) {
+        observer.observe(el);
+      });
+    } else {
+      // Fallback: show all at once
+      document.querySelectorAll('.reveal').forEach(function(el) {
+        el.classList.add('visible');
+      });
+    }
+  } catch(e) {}
+
+  // Trap accordion
+  function toggleTrap(item) {
+    try {
+      var body = item.querySelector('.trap-body');
+      if (!body) return;
+      var isOpen = item.classList.contains('open');
+      if (isOpen) {
+        item.classList.remove('open');
+        body.style.maxHeight = '0';
+      } else {
+        item.classList.add('open');
+        body.style.maxHeight = body.scrollHeight + 'px';
+      }
+    } catch(e) {}
+  }
+
+  // Checklist
+  function toggleCheck(el) {
+    try { el.classList.toggle('checked'); } catch(e) {}
+  }
+
+  // Smooth scroll nav (renamed to avoid conflict with window.scrollTo)
+  function scrollToSection(id) {
+    try {
+      var el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch(e) {}
+  }
+
+  // Nav active state
+  try {
+    var sections = ['why','jiresei','shippei','relation','process','role','traps','framework','sources'];
+    var navBtns = document.querySelectorAll('.nav-btn');
+
+    window.addEventListener('scroll', function() {
+      try {
+        var current = '';
+        sections.forEach(function(id) {
+          var el = document.getElementById(id);
+          if (el && el.getBoundingClientRect().top <= 80) { current = id; }
+        });
+        navBtns.forEach(function(btn) {
+          btn.classList.remove('active');
+          var oc = btn.getAttribute('onclick') || '';
+          if (current && oc.indexOf("'" + current + "'") !== -1) {
+            btn.classList.add('active');
+          }
+        });
+      } catch(e) {}
+    });
+  } catch(e) {}
+</script>
+
+</body>
+</html>
